@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XingliDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.xingli_uuid_number as xingliUuidNumber
+        ,a.xingli_name as xingliName
+        ,a.xingli_photo as xingliPhoto
+        ,a.xingli_types as xingliTypes
+        ,a.xingli_zhongliang as xingliZhongliang
+        ,a.xingli_zongjine as xingliZongjine
+        ,a.xingli_content as xingliContent
+        ,a.insert_time as insertTime
+        ,a.xingli_zhuangtai_types as xingliZhuangtaiTypes
+        ,a.xingli_yesno_types as xingliYesnoTypes
+        ,a.xingli_yesno_text as xingliYesnoText
+        ,a.xingli_shenhe_time as xingliShenheTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XingliView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+
+        FROM xingli  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.xingliUuidNumber != '' and params.xingliUuidNumber != null and params.xingliUuidNumber != 'null' ">
+                and a.xingli_uuid_number like CONCAT('%',#{params.xingliUuidNumber},'%')
+            </if>
+            <if test=" params.xingliName != '' and params.xingliName != null and params.xingliName != 'null' ">
+                and a.xingli_name like CONCAT('%',#{params.xingliName},'%')
+            </if>
+            <if test="params.xingliTypes != null and params.xingliTypes != ''">
+                and a.xingli_types = #{params.xingliTypes}
+            </if>
+            <if test="params.xingliZhongliangStart != null ">
+                <![CDATA[  and a.xingli_zhongliang >= #{params.xingliZhongliangStart}   ]]>
+            </if>
+            <if test="params.xingliZhongliangEnd != null ">
+                <![CDATA[  and a.xingli_zhongliang <= #{params.xingliZhongliangEnd}   ]]>
+            </if>
+            <if test="params.xingliZongjineStart != null ">
+                <![CDATA[  and a.xingli_zongjine >= #{params.xingliZongjineStart}   ]]>
+            </if>
+            <if test="params.xingliZongjineEnd != null ">
+                <![CDATA[  and a.xingli_zongjine <= #{params.xingliZongjineEnd}   ]]>
+            </if>
+            <if test=" params.xingliContent != '' and params.xingliContent != null and params.xingliContent != 'null' ">
+                and a.xingli_content like CONCAT('%',#{params.xingliContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.xingliZhuangtaiTypes != null and params.xingliZhuangtaiTypes != ''">
+                and a.xingli_zhuangtai_types = #{params.xingliZhuangtaiTypes}
+            </if>
+            <if test="params.xingliYesnoTypes != null and params.xingliYesnoTypes != ''">
+                and a.xingli_yesno_types = #{params.xingliYesnoTypes}
+            </if>
+            <if test=" params.xingliYesnoText != '' and params.xingliYesnoText != null and params.xingliYesnoText != 'null' ">
+                and a.xingli_yesno_text like CONCAT('%',#{params.xingliYesnoText},'%')
+            </if>
+            <if test=" params.xingliShenheTimeStart != '' and params.xingliShenheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.xingli_shenhe_time) >= UNIX_TIMESTAMP(#{params.xingliShenheTimeStart}) ]]>
+            </if>
+            <if test=" params.xingliShenheTimeEnd != '' and params.xingliShenheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.xingli_shenhe_time) <= UNIX_TIMESTAMP(#{params.xingliShenheTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
